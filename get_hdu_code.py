@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import lxml
-CookieID = ''  # 全局cookie
+CookieID = '10p8enos6apene2r0uhc1hre37'  # 全局cookie
 username = '你的账号'
 password = '你的密码'
 
@@ -54,7 +54,7 @@ def get_ac_code(page_id, problem_id):  # 获取题目的ac代码，传入页面�
         'Accept-Language': 'zh-CN,zh;q=0.9',
         'Cache-Control': 'max-age=0',
         'Connection': 'keep-alive',
-        'Cookie': 'PHPSESSID=' + '10p8enos6apene2r0uhc1hre37',
+        'Cookie': 'PHPSESSID=' + CookieID,
         'Host': 'acm.hdu.edu.cn',
         'Referer': 'http://acm.hdu.edu.cn/status.php?user='+username+'&pid='+problem_id+'&status=5',
         'Upgrade-Insecure-Requests': '1',
@@ -70,6 +70,8 @@ def get_ac_code(page_id, problem_id):  # 获取题目的ac代码，传入页面�
 
 
 def save_code(ac_code, problem_id):  # 利用题目编号命名，ac代码写入文件
+    if os.path.exists('HDU-code') == False:
+        os.mkdir('HDU-code')
     with open('HDU-code/'+problem_id+'.cpp', 'w') as f:
         f.write(ac_code)
 
@@ -101,7 +103,7 @@ if __name__ == '__main__':
         'Connection': 'keep-alive',
         'Content-Length': '50',
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Cookie': 'PHPSESSID=10p8enos6apene2r0uhc1hre37',
+        'Cookie': 'PHPSESSID=' + CookieID,
         'Host': 'acm.hdu.edu.cn',
         'Origin': 'http://acm.hdu.edu.cn',
         'Referer': 'http://acm.hdu.edu.cn/',
