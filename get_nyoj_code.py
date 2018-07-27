@@ -4,7 +4,7 @@ import lxml
 import re
 import os
 CookieID = '9dndfb0mdslimr29k456v7k7r2'  # 全局cookie
-username = '你的用户名'
+username = '你的账号'
 password = '你的密码'
 
 

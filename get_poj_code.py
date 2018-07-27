@@ -1,7 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 import lxml
-CookieID = 'F8203163AD9C9D3A5684AA23984FCA55'  # 全局cookie
+import re
+import os
+CookieID = '39926B677E07DD9CF0B08AA2ABCC7F63'  # 全局cookie
 username = '你的账号'
 password = '你的密码'
 
@@ -16,15 +18,25 @@ def get_problem_list():  # 获取需要爬取的题号列表
         if(len(name) == 7):
             name_list.append(name[2:-1])
             # print(name,name[2:-1])
+    name_list.remove('1000')
     return name_list
 
 
 def get_page_id(id):  # 利用题目号码，来获取代码页面号码
     r = requests.get('http://poj.org/status?problem_id='+id +
                      '&user_id='+username+'&result=0&language=')
+    r.encoding = r.apparent_encoding
+    soup = BeautifulSoup(r.text, 'lxml')
+    text = soup.findAll('td')
+    pattern = r'<td>\d+</td>'
+    for name in text:
+        jg = re.findall(pattern, str(name))
+        if len(jg) > 0:
+            return jg[0][4:-5]
 
 
 def get_ac_code(page_id, problem_id):  # 获取题目的ac代码，传入页面地址和题目编号
+    #print(page_id, problem_id)
     headers = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
         'Accept-Encoding': 'gzip, deflate',
@@ -41,24 +53,32 @@ def get_ac_code(page_id, problem_id):  # 获取题目的ac代码，传入页面�
               page_id, headers=headers)
     soup = BeautifulSoup(r.text, 'lxml')
     # print(soup.prettify())
+    # a = input('1111111')
     pre = soup.find_all('pre', {'class': 'sh_cpp'})[0]
     code = pre.get_text()
     return code
 
 
 def save_code(ac_code, problem_id):  # 利用题目编号命名，ac代码写入文件
-    with open('HDU-code/'+problem_id+'.cpp', 'w') as f:
+    if os.path.exists('POJ') == False:
+        os.mkdir('POJ')
+    with open('POJ/'+problem_id+'.cpp', 'w') as f:
         f.write(ac_code)
 
 
 def run():  # 主功能实现逻辑
-    # get_problem_list()
-    get_page_id('1064')
+    problem_list = get_problem_list()  # 获取ac题目列表
+    print('题目列表获取成功!,一共{}道题目'.format(len(problem_list)))
+    cnt = 0
+    for problem_id in problem_list:
+        cnt += 1
+        page_id = get_page_id(problem_id)
+        ac_code = get_ac_code(page_id, problem_id)
+        save_code(ac_code, problem_id)
+        print('已经处理了 '+str(cnt)+' 道题目，当前成功保存:'+problem_id)
 
 
 if __name__ == '__main__':
-    run()
-    exit()
     post_url = 'http://poj.org/login'  # 登录的post提交地址
     data = {
         'user_id1': username,
